@@ -53,8 +53,6 @@
                 </div>
             </div>
         </div>
-
-
     </div>
 </template>
 
@@ -556,6 +554,59 @@ export default {
 
             };
         },
+        // 判断绘制矩形正方形的方向（return：右下角-1，右上角-2，左上角-3，左下角-4）
+        drawDirection(rectangular) {
+            let direction = ''
+            if (rectangular.x2-rectangular.x1 > 0 && rectangular.y2 - rectangular.y1 > 0) {
+                direction = 1
+            }
+            if (rectangular.x2-rectangular.x1 > 0 && rectangular.y2 - rectangular.y1 < 0) {
+                direction = 2
+            }
+            if (rectangular.x2-rectangular.x1 < 0 && rectangular.y2 - rectangular.y1 < 0) {
+                direction = 3
+            }
+            if (rectangular.x2-rectangular.x1 < 0 && rectangular.y2 - rectangular.y1 > 0) {
+                direction = 4
+            }
+            
+            return direction
+        },
+        // 判断点是否在矩形内 return false true
+        isInPonint(x,y,rectangularObj) {
+            // 1步：声明变量返回值，默认为false
+            let isIn = false 
+            // 1步 调用绘制矩形时的方向
+            let direction = this.drawDirection(rectangularObj)
+            // 2：判断点是否在矩形内
+            if (direction == 1) {
+                if (x >= rectangularObj.x1 && x <= rectangularObj.x2 && y >= rectangularObj.y1 &&  y <= rectangularObj.y2) {
+                    console.log('在矩形内1');
+                    // this.style.cursor = "move"
+                    isIn = true
+                }
+            } else if (direction == 2) {
+                if (x >= rectangularObj.x1 && x <= rectangularObj.x2 && y <= rectangularObj.y1 &&  y >= rectangularObj.y2) {
+                    console.log('在矩形内2');
+                    // this.style.cursor = "move"
+                    isIn = true
+                }
+            } else if(direction == 3){
+                if (x <= rectangularObj.x1 && x >= rectangularObj.x2 && y <= rectangularObj.y1 &&  y >= rectangularObj.y2) {
+                    console.log('在矩形内3');
+                    // this.style.cursor = "move"
+                    isIn = true
+                }
+            } else if(direction == 4){
+                if (x <= rectangularObj.x1 && x >= rectangularObj.x2 && y <= rectangularObj.y1 &&  y >= rectangularObj.y2) {
+                    console.log('在矩形内4');
+                    // this.style.cursor = "move"
+                    isIn = true
+                }
+            }
+
+            return isIn
+        },
         // 鼠标移入选中标注
         chooseMark(){
             console.log('去画布选中标注');
@@ -568,34 +619,96 @@ export default {
             let eightPoint = ''
             canvas.onmousedown = function (e) {
                 let arr = _this.coordinates.rectangular
+                if (selectObj) {
+                    wasSelected = false
+                    return false
+                }
                 for (let i = 0; i < arr.length; i++) {
-                    if (e.offsetX >=  arr[i].x1 && e.offsetX <=  arr[i].x2 && Math.abs(e.offsetY - arr[i].y1) < 5 || Math.abs(e.offsetY - arr[i].y2) < 5) {
-                        console.log('在x轴上');
-                        eightPoint = _this.drawDashedRectangular(arr[i].x1, arr[i].y1, arr[i].x2, arr[i].y2)
-                        selectObj = arr[i]
-                        wasSelected = true
+                    // 1：获取矩形绘制的方向
+                    let direction = _this.drawDirection(arr[i])
+                    console.log('矩形绘制方向', direction);
+                    if (direction == 1) {
+                        if (e.offsetX >=  arr[i].x1 && e.offsetX <=  arr[i].x2 && (Math.abs(e.offsetY - arr[i].y1) < 5 || Math.abs(e.offsetY - arr[i].y2) < 5)) {
+                            console.log('在x轴上');
+                            // 传入矩形位置，绘制虚线框，并得到八个点的位置
+                            eightPoint = _this.drawDashedRectangular(arr[i].x1, arr[i].y1, arr[i].x2, arr[i].y2)
+                            selectObj = arr[i]
+                            wasSelected = true
+                        }
+                        if (e.offsetY >=  arr[i].y1 && e.offsetY <=  arr[i].y2 && Math.abs(e.offsetX - arr[i].x1) < 5 || Math.abs(e.offsetX - arr[i].x2) < 5) {
+                            console.log('在y轴上');
+                            selectObj = arr[i]
+                            eightPoint = _this.drawDashedRectangular(arr[i].x1, arr[i].y1, arr[i].x2, arr[i].y2)
+                            wasSelected = true
+                        }
                     }
-                    if (e.offsetY >=  arr[i].y1 && e.offsetY <=  arr[i].y2 && Math.abs(e.offsetX - arr[i].x1) < 5 || Math.abs(e.offsetX - arr[i].x2) < 5) {
-                        console.log('在y轴上');
-                        selectObj = arr[i]
-                        eightPoint = _this.drawDashedRectangular(arr[i].x1, arr[i].y1, arr[i].x2, arr[i].y2)
-                        wasSelected = true
+                    if (direction == 2) {
+                        if (e.offsetX >=  arr[i].x1 && e.offsetX <=  arr[i].x2 && Math.abs(e.offsetY - arr[i].y1) < 5 || Math.abs(e.offsetY - arr[i].y2) < 5) {
+                            console.log('在x轴上');
+                            // 传入矩形位置，绘制虚线框，并得到八个点的位置
+                            eightPoint = _this.drawDashedRectangular(arr[i].x1, arr[i].y1, arr[i].x2, arr[i].y2)
+                            selectObj = arr[i]
+                            wasSelected = true
+                        }
+                        if (e.offsetY <=  arr[i].y1 && e.offsetY >=  arr[i].y2 && Math.abs(e.offsetX - arr[i].x1) < 5 || Math.abs(e.offsetX - arr[i].x2) < 5) {
+                            console.log('在y轴上');
+                            selectObj = arr[i]
+                            eightPoint = _this.drawDashedRectangular(arr[i].x1, arr[i].y1, arr[i].x2, arr[i].y2)
+                            wasSelected = true
+                        }
                     }
+
+                    if (direction == 3) {
+                        if (e.offsetX <=  arr[i].x1 && e.offsetX >=  arr[i].x2 && (Math.abs(e.offsetY - arr[i].y1) < 5 || Math.abs(e.offsetY - arr[i].y2) < 5)) {
+                            console.log('在x轴上');
+                            // 传入矩形位置，绘制虚线框，并得到八个点的位置
+                            eightPoint = _this.drawDashedRectangular(arr[i].x1, arr[i].y1, arr[i].x2, arr[i].y2)
+                            selectObj = arr[i]
+                            wasSelected = true
+                        }
+                        if (e.offsetY <=  arr[i].y1 && e.offsetY >=  arr[i].y2 && (Math.abs(e.offsetX - arr[i].x1) < 5 || Math.abs(e.offsetX - arr[i].x2) < 5)) {
+                            console.log('在y轴上');
+                            selectObj = arr[i]
+                            eightPoint = _this.drawDashedRectangular(arr[i].x1, arr[i].y1, arr[i].x2, arr[i].y2)
+                            wasSelected = true
+                        }
+                    }
+                    if (direction == 4) {
+                        if (e.offsetX <=  arr[i].x1 && e.offsetX >=  arr[i].x2 && (Math.abs(e.offsetY - arr[i].y1) < 5 || Math.abs(e.offsetY - arr[i].y2) < 5)) {
+                            console.log('在x轴上');
+                            // 传入矩形位置，绘制虚线框，并得到八个点的位置
+                            eightPoint = _this.drawDashedRectangular(arr[i].x1, arr[i].y1, arr[i].x2, arr[i].y2)
+                            selectObj = arr[i]
+                            wasSelected = true
+                        }
+                        console.log(e.offsetY, e.offsetX,arr[i]);
+                        if (e.offsetY >=  arr[i].y1 && e.offsetY <=  arr[i].y2 && (Math.abs(e.offsetX - arr[i].x1) < 5 || Math.abs(e.offsetX - arr[i].x2) < 5)) {
+                            console.log('在y轴上');
+                            selectObj = arr[i]
+                            eightPoint = _this.drawDashedRectangular(arr[i].x1, arr[i].y1, arr[i].x2, arr[i].y2)
+                            wasSelected = true
+                        }
+                    }
+                    
                 }
                 wasSelected = true
             };
             canvas.onmousemove = function (e) {
-                console.log(eightPoint);
+                // console.log(eightPoint);
                 let offsetX = e.offsetX,offsetY = e.offsetY;
+                let direction = _this.drawDirection(selectObj) // 传入选中矩形，判断矩形绘制时的方向
                 if (eightPoint) {
                     let pointIndex = ''
                     Object.keys(eightPoint).forEach(key => {
-                        // console.log(key,eightPoint[key]);
-                        if (offsetX >= eightPoint[key].x1 && offsetX <= eightPoint[key].x2 && offsetY >= eightPoint[key].y1 && offsetY <= eightPoint[key].y2) {
+                        // 绘制矩形在右上角的时候的判断 右上角判断
+                            if (offsetX >= eightPoint[key].x1 && offsetX <= eightPoint[key].x2 && offsetY >= eightPoint[key].y1 && offsetY <= eightPoint[key].y2) {
                             console.log(key , '在点上');
                             pointIndex = key
                             if (key == 7 || key == 5) {
                                 this.style.cursor = "n-resize"
+                                document.onmousedown=(target)=>{
+                                    console.log('鼠标按钮',target);
+                                }
                             } else if (key == 8 || key == 6) {
                                 this.style.cursor = "w-resize"
                             } else if (key == 4 || key == 2) {
@@ -603,13 +716,22 @@ export default {
                             } else if (key == 3 || key == 1) {
                                 this.style.cursor = "ne-resize"
                             } else {
-                                this.style.cursor = "crosshair"
+                                this.style.cursor = "help"
                             }
-                        }
+                        } 
+                        
                     });  
-                    if (!pointIndex) {
-                        this.style.cursor = "crosshair"
-                    }
+                    console.log(offsetX,offsetY, selectObj );
+
+                    let isInPonint = _this.isInPonint(offsetX,offsetY, selectObj)
+                    if (isInPonint) {
+                        this.style.cursor = "move"
+                    }else{
+                        if (!pointIndex) {
+                            this.style.cursor = "crosshair"
+                        }
+                    }                                                   
+                    
                 }
                 
                 // 判断鼠标是否在八个点上
