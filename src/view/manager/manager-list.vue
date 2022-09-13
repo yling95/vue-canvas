@@ -7,8 +7,8 @@
                 <div style="margin-bottom:20px">
                     <a-button type="primary" @click="addPoint(1), drawType = 'point'">添加点</a-button>
                     <a-button type="primary" @click="drawRectangular" style="margin-left: 20px;">添加矩形</a-button>
-                    <a-button type="primary" @click="drawRectangular('square')" style="margin-left: 20px;">添加正方形
-                    </a-button>
+                    <a-button type="primary" @click="drawRectangular('square')" style="margin-left: 20px;">添加正方形</a-button>
+                    <a-button type="primary" @click="chooseMark">选中标注</a-button>
                     <a-button type="primary" @click="drawType = null" style="margin-left: 20px;">结束绘制</a-button>
                     <div style="width: 400px;">
                         <a-slider id="test" :default-value="imageSize" @change="scaleCanvas" />
@@ -270,7 +270,6 @@ export default {
                 for (let i = 0; i < arr.length; i++) {
                     this.drawRectangularFn(arr[i])
                 }
-
             }
 
         },
@@ -292,8 +291,9 @@ export default {
             let ctx = this.ctx
             let _this = this;
             ctx.beginPath();
+            let direction = this.judgeDirection(x1, y1, x2, y2)
              // 判断方位 绘制点
-             if (x2 > x1 && y2 < y1) {
+             if (direction == 2) {
                 // 右上角
                 ctx.moveTo(x1-5, y1+5);
                 ctx.lineTo(x2+5, y1+5);
@@ -316,20 +316,26 @@ export default {
                 ctx.fillRect(x2+2, y1+2, 6, 6)
                 ctx.fillRect(x2+2, y2-8, 6, 6)
                 ctx.fillRect(x1-8, y2-8, 6, 6)
-                console.log('右上角');
                 ctx.strokeRect(_this.$utils.numberToFixed((x1-2 + ((x2+5 - x1-5)/2))),y1+2, 6, 6);
                 ctx.fillRect(_this.$utils.numberToFixed((x1-2 + ((x2+5 - x1-5)/2))),y1+2, 6, 6)
-
                 ctx.strokeRect(x2+2, _this.$utils.numberToFixed((y1-5 + ((y2 +2 - y1-8)/2))), 6, 6);
                 ctx.fillRect(x2+2, _this.$utils.numberToFixed((y1-5 + ((y2 +2 - y1-8)/2))), 6, 6)
-
                 ctx.strokeRect(_this.$utils.numberToFixed((x1-2 + ((x2+5 - x1-5)/2))),y2-8, 6, 6);
                 ctx.fillRect(_this.$utils.numberToFixed((x1-2 + ((x2+5 - x1-5)/2))),y2-8, 6, 6)
-
                 ctx.strokeRect(x1-8, _this.$utils.numberToFixed((y1-5 + ((y2 +2 - y1-8)/2))), 6, 6);
                 ctx.fillRect(x1-8, _this.$utils.numberToFixed((y1-5 + ((y2 +2 - y1-8)/2))), 6, 6)
-                
-            } else if (x2 < x1 && y2 > y1) {
+                let eightPoint = {
+                    1:{x1: x1-8,y1: y1+2, x2: x1-8+6, y2: y1+2+6},// 左下角
+                    2:{x1: x2+2,y1: y1+2, x2: x2+2+6, y2: y1+2+6},// 右下角
+                    3:{x1: x2+2,y1: y2-8, x2: x2+2+6, y2: y2-8+6},//右上角
+                    4:{x1: x1-8,y1: y2-8, x2: x1-8+6, y2: y2-8+6},// 左上角
+                    5:{x1:_this.$utils.numberToFixed((x1-2 + ((x2+5 - x1-5)/2))),y1:y1+2,x2:_this.$utils.numberToFixed((x1-2 + ((x2+5 - x1-5)/2))) +6,y2:y1+2+6 },// 正下方
+                    6:{x1:x2+2,y1:_this.$utils.numberToFixed((y1-5 + ((y2 +2 - y1-8)/2))),x2:x2+2+6,y2:_this.$utils.numberToFixed((y1-5 + ((y2 +2 - y1-8)/2)))+6 },// 正右方
+                    7:{x1:_this.$utils.numberToFixed((x1-2 + ((x2+5 - x1-5)/2))), y1:y2-8 , x2:_this.$utils.numberToFixed((x1-2 + ((x2+5 - x1-5)/2)))+6,y2:y2-8+6},// 正上方
+                    8:{x1: x1-8, y1: _this.$utils.numberToFixed((y1-5 + ((y2 +2 - y1-8)/2))), x2: x1-8+6, y2: _this.$utils.numberToFixed((y1-5 + ((y2 +2 - y1-8)/2)))+6}
+                }
+                return eightPoint
+            } else if (direction == 4) {
                 // 左下角
                 ctx.moveTo(x1+5, y1-5);
                 ctx.lineTo(x2-5, y1-5);
@@ -360,7 +366,7 @@ export default {
                 ctx.fillRect(_this.$utils.numberToFixed((x1-2 + ((x2+5 - x1-5)/2))),y2+2, 6, 6)
                 ctx.strokeRect(x1+2, _this.$utils.numberToFixed((y1-5 + ((y2 +2 - y1-8)/2))), 6, 6);
                 ctx.fillRect(x1+2, _this.$utils.numberToFixed((y1-5 + ((y2 +2 - y1-8)/2))), 6, 6)
-            } else if (x2 > x1 && y2 > y1) {
+            } else if (direction == 1) {
                 // 右下角
                 ctx.moveTo(x1-5,y1- 5);
                 ctx.lineTo(x2+5,y1- 5);
@@ -391,7 +397,7 @@ export default {
                 ctx.fillRect(x2+2,y1-8, 6, 6)
                 ctx.fillRect(x2+2, y2 +2, 6, 6)
                 ctx.fillRect(x1-8, y2 +2, 6, 6)
-            }else {
+            }else  if (direction == 3){
                 // 左上角
                 console.log('左上角');
                 ctx.moveTo(x1+5, y1+5);
@@ -425,23 +431,31 @@ export default {
                 ctx.fillRect(x1+2, _this.$utils.numberToFixed((y1-5 + ((y2 +2 - y1-8)/2))), 6, 6)
             }
 
-            
-
-            // this.style.cursor = "vertical-text"
-
-            
-            
             this.reversCanvasDefaultStyle()
         },
-        // 判断鼠标是否在八个点上
-        imissInRect() {
-            
+        /*
+         参数:根据四个点 判断方位   x1 y1为七点
+         返回：1：右下角  2：右上角  3：左上角  4：左下角
+        */ 
+        judgeDirection (x1, y1, x2, y2) {
+            if (x2 > x1 && y2 < y1) {
+                // 右上角
+                return 2
+            } else if (x2 < x1 && y2 > y1) {
+                // 左下角
+                return 4
+            } else if (x2 > x1 && y2 > y1) {
+                // 右下角
+                return 1
+            }else {
+                // 左上角
+                return 3
+            }
         },
         // 绘制据矩形、正方形
         drawRectangular(type) {
             this.drawType = 'rectangular'
             // 绘制矩形：1、添加四个点。 2、判断是否满足四个点。 3、 将四个点的坐标连成线
-            var draw = []
             let _this = this
             let flag = false
             let ctx = _this.ctx;
@@ -457,7 +471,6 @@ export default {
                         startPoint = { x:offsetX, y: offsetY }
                         ctx.strokeRect(offsetX, offsetY, 10, 10);
                         _this.drawDashedRectangular(offsetX, offsetY, offsetX + 10, offsetY + 10)
-                       
                     } else {
                         // 绘制正方形
                         if (type == 'square') {
@@ -476,13 +489,16 @@ export default {
                             }
                         } else {
                             // 绘制矩形
+                            let direction = _this.judgeDirection(startPoint.x, startPoint.y, offsetX, offsetY)
                             ctx.strokeRect(startPoint.x, startPoint.y, offsetX - startPoint.x, offsetY - startPoint.y);
                             _this.coordinates.rectangular.push({ x1: startPoint.x, y1: startPoint.y, x2: offsetX, y2: offsetY })
-                            _this.drawDashedRectangular(startPoint.x, startPoint.y, offsetX, offsetY)
+                            
+                            
                         }
                         console.log(_this.coordinates.rectangular);
                         startPoint = {}
                         ctx.closePath();
+                        _this.creatImage()
                     }
                     flag = !flag
 
@@ -490,8 +506,7 @@ export default {
 
             };
             canvas.onmousemove = function (e) {
-                // this.style.cursor = "crosshair"
-                this.style.cursor = "n-resize"
+                this.style.cursor = "crosshair"
                 if (!flag) {
                     return false
                 }
@@ -504,13 +519,17 @@ export default {
                         if (offsetX > startPoint.x && offsetY < startPoint.y) {
                             // 右上角
                             ctx.strokeRect(startPoint.x, startPoint.y, offsetX - startPoint.x, -(offsetX - startPoint.x));
+                            _this.drawDashedRectangular(startPoint.x, startPoint.y, startPoint.x-(startPoint.x - offsetX),startPoint.y -(offsetX - startPoint.x))
                         } else if (offsetX < startPoint.x && offsetY > startPoint.y) {
                             // 左下角
                             ctx.strokeRect(startPoint.x, startPoint.y, -(startPoint.x - offsetX), startPoint.x - offsetX);
+                            _this.drawDashedRectangular(startPoint.x, startPoint.y, startPoint.x-(startPoint.x - offsetX), startPoint.y - (offsetX - startPoint.x))
                         } else {
                             // 右下角，左上角
                             ctx.strokeRect(startPoint.x, startPoint.y, offsetX - startPoint.x, offsetX - startPoint.x);
+                            _this.drawDashedRectangular(startPoint.x, startPoint.y, offsetX, startPoint.y + offsetX - startPoint.x)
                         }
+                        
                     } else {
                         // 矩形
                         ctx.strokeRect(startPoint.x, startPoint.y, offsetX - startPoint.x, offsetY - startPoint.y);
@@ -536,6 +555,81 @@ export default {
                 // }
 
             };
+        },
+        // 鼠标移入选中标注
+        chooseMark(){
+            console.log('去画布选中标注');
+            let _this = this
+            let flag = false
+            let ctx = _this.ctx;
+            let canvas = _this.canvas;
+            let wasSelected = false
+            let selectObj = ''
+            let eightPoint = ''
+            canvas.onmousedown = function (e) {
+                let arr = _this.coordinates.rectangular
+                for (let i = 0; i < arr.length; i++) {
+                    if (e.offsetX >=  arr[i].x1 && e.offsetX <=  arr[i].x2 && Math.abs(e.offsetY - arr[i].y1) < 5 || Math.abs(e.offsetY - arr[i].y2) < 5) {
+                        console.log('在x轴上');
+                        eightPoint = _this.drawDashedRectangular(arr[i].x1, arr[i].y1, arr[i].x2, arr[i].y2)
+                        selectObj = arr[i]
+                        wasSelected = true
+                    }
+                    if (e.offsetY >=  arr[i].y1 && e.offsetY <=  arr[i].y2 && Math.abs(e.offsetX - arr[i].x1) < 5 || Math.abs(e.offsetX - arr[i].x2) < 5) {
+                        console.log('在y轴上');
+                        selectObj = arr[i]
+                        eightPoint = _this.drawDashedRectangular(arr[i].x1, arr[i].y1, arr[i].x2, arr[i].y2)
+                        wasSelected = true
+                    }
+                }
+                wasSelected = true
+            };
+            canvas.onmousemove = function (e) {
+                console.log(eightPoint);
+                let offsetX = e.offsetX,offsetY = e.offsetY;
+                if (eightPoint) {
+                    let pointIndex = ''
+                    Object.keys(eightPoint).forEach(key => {
+                        // console.log(key,eightPoint[key]);
+                        if (offsetX >= eightPoint[key].x1 && offsetX <= eightPoint[key].x2 && offsetY >= eightPoint[key].y1 && offsetY <= eightPoint[key].y2) {
+                            console.log(key , '在点上');
+                            pointIndex = key
+                            if (key == 7 || key == 5) {
+                                this.style.cursor = "n-resize"
+                            } else if (key == 8 || key == 6) {
+                                this.style.cursor = "w-resize"
+                            } else if (key == 4 || key == 2) {
+                                this.style.cursor = "nw-resize"
+                            } else if (key == 3 || key == 1) {
+                                this.style.cursor = "ne-resize"
+                            } else {
+                                this.style.cursor = "crosshair"
+                            }
+                        }
+                    });  
+                    if (!pointIndex) {
+                        this.style.cursor = "crosshair"
+                    }
+                }
+                
+                // 判断鼠标是否在八个点上
+                // 北
+                // this.style.cursor = "n-resize"
+                // 南
+                // this.style.cursor = "s-resize"
+                // 左
+                // this.style.cursor = "w-resize"
+                // 右
+                // this.style.cursor = "e-resize"
+                // 东北
+                // this.style.cursor = "ne-resize"
+                // 西北
+                // this.style.cursor = "nw-resize"
+                // 东南
+                // this.style.cursor = "se-resize"
+                // 西南
+                // this.style.cursor = "sw-resize"
+            }
         }
     }
 }
@@ -545,5 +639,6 @@ export default {
 .box {
     display: flex;
     justify-content: space-between;
+    padding: 20px;
 }
 </style>

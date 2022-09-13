@@ -23,7 +23,8 @@ const routes = [
         ]
     }
 ]
-routes[1].children.push(...routerList)
+// routes[1].children.push(...routerList)
+routes.push(...routerList)
 const router = createRouter({
 
     history: createWebHistory(process.env.BASE_URL),
