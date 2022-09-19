@@ -17,11 +17,16 @@ const routes = [
     {
         path: '/',
         name: 'Layout',
-        component: () => import('@/view/layout/layout'),
-        children:[
-
-        ]
+        redirect:'/manager'
     }
+    // {
+    //     path: '/',
+    //     name: 'Layout',
+    //     component: () => import('@/view/layout/layout'),
+    //     children:[
+
+    //     ]
+    // }
 ]
 // routes[1].children.push(...routerList)
 routes.push(...routerList)
