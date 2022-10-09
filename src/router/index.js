@@ -17,7 +17,7 @@ const routes = [
     {
         path: '/',
         name: 'Layout',
-        redirect:'/manager'
+        redirect:'/markImage'
     }
     // {
     //     path: '/',

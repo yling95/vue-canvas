@@ -2,10 +2,7 @@ const { defineConfig } = require('@vue/cli-service')
 const NodePolyfillPlugin = require('node-polyfill-webpack-plugin')
 const webpack = require('webpack')
 
- 
-// module.exports = {
 
-// }
 module.exports = defineConfig({
   transpileDependencies: true,
   lintOnSave:false,
@@ -42,12 +39,29 @@ module.exports = defineConfig({
      },
      plugins: [
           new webpack.ProvidePlugin({
-                process: 'process/browser',
+                process: 'process/browser'
           }),
       ],
   
   },
-
-
+  // webpack-dev-server 相关配置
+  devServer: {
+    // 自动打开浏览器
+    open: false,
+    // 设置为0.0.0.0则所有的地址均能访问
+    host: '0.0.0.0',
+    port: '8000',
+    https: false,
+    historyApiFallback: true,
+    proxy: {
+      '/api': {
+        target: 'http://192.168.17.108:9601/',// 汝英
+        changeOrigin: true,
+        pathRewrite: {
+          '^/api': '/'
+        }
+      }
+    }
+  }
 })
 
